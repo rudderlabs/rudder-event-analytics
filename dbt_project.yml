@@ -40,19 +40,14 @@ vars:
   end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp (ex: '2022-01-01' would consider data only <= 2022-01-01)
   date_format: 'YYYY-MM-DD'             # This is the date format
   session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
-  lookback_days: [1,7,30,90,365]          # There are various lookback features such as amt_spent_in_past_n_days etc where n takes values from this list. If the list has two values [7, 30], amt_spent_in_past_7_days and amt_spent_in_past_30_days are computed for ex.
-  main_id: 'rudder_id' # Column name of the main id/rudder id from id graph table
-
-  #table id stitcher
-  id_stitcher_name: 'id_graph' # Name of the id stitch table. If we are using rudder id graph dbt, this should be 'id_graph'
-  tbl_id_stitcher: "{{ source('analytics', var('id_stitcher_name')) }}"
-  col_id_stitcher_other_id: 'edge' # Name of the column in id stitch table, where the user_id, email_id etc are present
-  
+  main_id: anonymous_id
+  id_stitcher_name: dummy
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
   #table rudder identifies
   tbl_rudder_identifies: "{{ source('rudder', 'identifies') }}"
+  col_rudder_identifies_anon_id: 'anonymous_id'
   col_rudder_identifies_user_id: 'user_id'
   col_rudder_identifies_email: 'email'
   col_rudder_identifies_country: 'address_country'
@@ -72,13 +67,22 @@ vars:
 
   #table rudder tracks
   tbl_rudder_tracks: "{{ source('rudder', 'tracks') }}"
+  col_rudder_tracks_anon_id: 'anonymous_id'
   col_rudder_tracks_user_id: 'user_id'
   col_rudder_tracks_timestamp: "{{timestamp_call('timestamp')}}"
   col_rudder_tracks_session_id: 'context_session_id'
 
   #table rudder pages
   tbl_rudder_pages: "{{ source('rudder', 'pages') }}"
+  col_rudder_pages_anon_id: 'anonymous_id'
   col_rudder_pages_user_id: 'user_id'
   col_rudder_pages_timestamp: "{{timestamp_call('timestamp')}}" 
   col_rudder_pages_session_id: 'context_session_id'
+
+  ##table rudder screens
+  #tbl_rudder_pages: "{{ source('rudder', 'screens') }}"
+  #col_rudder_pages_anon_id: 'anonymous_id'
+  #col_rudder_pages_user_id: 'user_id'
+  #col_rudder_pages_timestamp: "{{timestamp_call('timestamp')}}" 
+  #col_rudder_pages_session_id: 'context_session_id'
 

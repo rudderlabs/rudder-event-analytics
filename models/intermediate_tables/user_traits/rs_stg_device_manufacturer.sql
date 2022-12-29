@@ -11,5 +11,5 @@ select
         order by case when {{ var('col_shopify_identifies_device_manufacturer')}} is not null and {{ var('col_shopify_identifies_device_manufacturer')}} != '' then 2 else 1 end desc, 
         {{ var('col_shopify_identifies_timestamp')}} desc {{frame_clause()}}
     ) as device_manufacturer
-from {{ ref('rs_stg_identifies')}} 
+from {{ source('rudder', 'identifies') }}
 where {{timebound( var('col_shopify_identifies_timestamp'))}} and {{ var('main_id')}} is not null

@@ -49,4 +49,5 @@
     to_date({{timestamp_col}})
 {% elif target.type == 'redshift' %}
     trunc({{timestamp_col}})
+{% endif %}
 {% endmacro %}

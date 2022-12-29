@@ -10,9 +10,3 @@ sources:
       - name: tracks
       - name: pages
       - name: identifies
-  - name: analytics
-    description: Target schema, where the final tables are written
-    database: "{{target.database}}"
-    schema: "{{target.schema}}"
-    tables:
-      - name: "{{ var('id_stitcher_name')}}"
