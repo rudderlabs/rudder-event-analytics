@@ -1,3 +1,60 @@
+Using RudderStack eventstream data, this dbt project creates several metrics tables that can be plugged into various visualisation tools such as Tableau or Looker. 
+
+## Setup and Dependencies
+* RudderStack event-stream sdk is being used, which creates the following tables in your warehouse:
+    * tracks
+    * pages
+    * identifies
+* Run `dbt deps` which installs the required dependencies
+
+### Setting up ID Stitch configuration
+* Set up a dbt profile with the right warehouse credentials
+* Go to dbt_packages/id_stitching/dbt_project.yml and modify the variables `schemas-to-include`, and `source-database` to the schema and database where the rudderstack eventstream tables are present. The source-database is case sensitive. Ensure it is maintained, while the schemas is entered in lowercase. Also set  `tables-to-include` to ('pages', 'tracks', 'identifies') so that the id stitcher runs on only these tables
+
+
+2. [RudderStack ID stitch dbt](https://hub.getdbt.com/rudderlabs/id_stitching/latest/) is enabled and an id graph table is generated in the warehouse
+
+### Setting up
+
+All the changes can be done from the `dbt_project.yml` file. The key variables that require to be changed are:
+
+```
+
+vars:
+  shopify_database: 'warehouse'    #This is the name of database where the RudderStack Shopify tables are all stored
+  shopify_schema: 'rudderstack'     #This is the name of schema where the RudderStack Shopify tables are all stored
+  start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. 
+  end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp
+  date_format: 'YYYY-MM-DD'             # This is the date format
+  session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
+  lookback_days: [1,7,30,90,365]          # There are various lookback features such as amt_spent_in_past_n_days etc where n takes values from this list. If the list has two values [7, 30], amt_spent_in_past_7_days and amt_spent_in_past_30_days are computed for ex.
+  product_ref_var: 'product_id'         #This is the name of the property in the tracks calls that uniquely corresponds to the product
+  category_ref_var: 'category_l1'       #This is the name of the property in the tracks calls that corresponds to the product category
+  main_id: 'rudder_id' # Column name of the main id/rudder id from id graph table
+  card_types: ('mastercard', 'visa')    #These are the types of credit cards(in lowercase) that will be considered to check if the user has a credit card 
+ 
+
+```
+
+Along with the above variables, the table names (variables that start with `tbl_` prefix) may need to be changed depending on the schema, both in the dbt_project.yml file and in schema.yml file if they deviate from the shopify spec. 
+
+
+
+### Point-in-time correctness
+The `end_date` variable in `dbt_project.yml` can be used to generate the features as of some time in the past. The default value is `'now'` which generates the features as of the run timestamp. But if it is modified to some date in the past, only those events till that timestamp are considered to generate the features. This is a valuable functionality while generating training data for various Machine Learning models, which require historical data to train predictive models.
+
+
+## Configuration
+
+### Customisation
+
+## Output:
+[TODO]
+
+## Metrics created
+
+
+### Appendix (Delete later)
 ### Features List
 
 - [traits features](https://github.com/rudderlabs/dbt_shopify_features/tree/main/models/intermediate_tables/rs_user_traits): These are related to user, which do not, or rarely change. They are created from the latest identify call for a given user
@@ -61,44 +118,12 @@
     3. [TODO]highest_spent_category (str) (based on the price of the products); Max size is controlled from variable `var_max_cart_size`; If a user has more than this number of distinct categories, it limits to the random `var_max_cart_size` number of categories. If this number is too large, it can create performance issues.
     4. [TODO]highest_transacted_category (str); Max size is controlled from variable `var_max_cart_size`; If a user has more than this number of distinct categories, it limits to the random `var_max_cart_size` number of categories. If this number is too large, it can create performance issues.
 
-### Prerequisites:
-1. Below events are required. Within each table, the required columns can be checked from the dbt_project.yml file variables.
-    1.1 tracks
-    1.2 identifies
-    1.3 pages
-    1.4 order_created
-    1.5 orders_cancelled
-    1.6 cart_creat
-    1.7 cart_update
-2. [RudderStack ID stitch dbt](https://hub.getdbt.com/rudderlabs/id_stitching/latest/) is enabled and an id graph table is generated in the warehouse
 
-### Setting up
-
-As long as the events are instrumented following the shopify spec, no changes in the sql files are required. All the changes can be done from the `dbt_project.yml` file. The key variables that require to be changed are:
-
-```
-
-vars:
-  shopify_database: 'warehouse'    #This is the name of database where the RudderStack Shopify tables are all stored
-  shopify_schema: 'rudderstack'     #This is the name of schema where the RudderStack Shopify tables are all stored
-  start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. 
-  end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp
-  date_format: 'YYYY-MM-DD'             # This is the date format
-  session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
-  lookback_days: [1,7,30,90,365]          # There are various lookback features such as amt_spent_in_past_n_days etc where n takes values from this list. If the list has two values [7, 30], amt_spent_in_past_7_days and amt_spent_in_past_30_days are computed for ex.
-  product_ref_var: 'product_id'         #This is the name of the property in the tracks calls that uniquely corresponds to the product
-  category_ref_var: 'category_l1'       #This is the name of the property in the tracks calls that corresponds to the product category
-  main_id: 'rudder_id' # Column name of the main id/rudder id from id graph table
-  card_types: ('mastercard', 'visa')    #These are the types of credit cards(in lowercase) that will be considered to check if the user has a credit card 
- 
-
-```
-
-Along with the above variables, the table names (variables that start with `tbl_` prefix) may need to be changed depending on the schema, both in the dbt_project.yml file and in schema.yml file if they deviate from the shopify spec. 
-
-
-### Output:
-[TODO]
-
-### Point-in-time correctness
-The `end_date` variable in `dbt_project.yml` can be used to generate the features as of some time in the past. The default value is `'now'` which generates the features as of the run timestamp. But if it is modified to some date in the past, only those events till that timestamp are considered to generate the features. This is a valuable functionality while generating training data for various Machine Learning models, which require historical data to train predictive models.
+# Questions:
+1. Do we assume session_id to be present? 
+   1.1 Always create
+   1.2 Always use (if column is present)
+   1.3 Create if value is null, else use - more complex and edge cases
+2. How do we integrate the id graph? Has one approach currently. Is that good enough?
+3. Incremental mode vs full batch mode - full batch is easy, but costly on compute. v0 can be full batch and v1 can be incremental? Extra effort but faster release.
+4. Granularity - daily is sufficient? 

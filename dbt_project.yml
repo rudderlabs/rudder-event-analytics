@@ -1,11 +1,11 @@
 
-# Creating a unified customer view from your RudderStack shopify tables;
-name: 'dbt_shopify_features_rs'
+# Creating a unified customer view from your RudderStack rudder tables;
+name: 'dbt_rudderstack_metrics'
 version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'default'
+profile: 'rudderstack_analytics'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
@@ -24,8 +24,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 
 models:
-  dbt_shopify_features_rs:
-    # Applies to all files under models/example/
+  dbt_rudder_features_rs:
     source_tables:
       materialized: ephemeral
     intermediate_tables:
@@ -35,86 +34,51 @@ models:
 
 
 vars:
-  shopify_database: 'warehouse'    #This is the name of database where the RudderStack Shopify tables are all stored
-  shopify_schema: 'rudderstack'     #This is the name of schema where the RudderStack Shopify tables are all stored
-  start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. 
-  end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp
+  rs_database: 'warehouse'    #This is the name of database where the RudderStack tables are all stored
+  rs_schema: 'rudderstack'     #This is the name of schema where the RudderStack tables are all stored
+  start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. If no such filter is required, this can be left blank (empty string '')
+  end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp (ex: '2022-01-01' would consider data only <= 2022-01-01)
   date_format: 'YYYY-MM-DD'             # This is the date format
   session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
   lookback_days: [1,7,30,90,365]          # There are various lookback features such as amt_spent_in_past_n_days etc where n takes values from this list. If the list has two values [7, 30], amt_spent_in_past_7_days and amt_spent_in_past_30_days are computed for ex.
-  product_ref_var: 'product_id'         #This is the name of the property in the tracks calls that uniquely corresponds to the product
-  category_ref_var: 'category_l1'       #This is the name of the property in the tracks calls that corresponds to the product category
   main_id: 'rudder_id' # Column name of the main id/rudder id from id graph table
 
-  card_types: ('mastercard', 'visa')    #These are the types of credit cards(in lowercase) that will be considered to check if the user has a credit card 
-
   #table id stitcher
-  id_stitcher_name: 'id_graph' # Name of the id stitch table. Usually, something like `rs_user_id_graph`
-  tbl_id_stitcher: "{{ source('shopify', var('id_stitcher_name')) }}"
+  id_stitcher_name: 'id_graph' # Name of the id stitch table. If we are using rudder id graph dbt, this should be 'id_graph'
+  tbl_id_stitcher: "{{ source('analytics', var('id_stitcher_name')) }}"
   col_id_stitcher_other_id: 'edge' # Name of the column in id stitch table, where the user_id, email_id etc are present
   
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
-  #table shopify identifies
-  tbl_shopify_identifies: "{{ source('shopify', 'identifies') }}"
-  col_shopify_identifies_user_id: 'user_id'
-  col_shopify_identifies_email: 'email'
-  col_shopify_identifies_country: 'address_country'
-  col_shopify_identifies_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_identifies_campaign_source: 'context_campaign_source'
-  col_shopify_identifies_device_type: 'context_device_type'
-  col_shopify_identifies_device_name: 'context_device_name'
-  col_shopify_identifies_device_manufacturer: 'context_device_manufacturer'
-  col_shopify_identifies_state: 'state'
-  col_shopify_identifies_currency: 'currency'
-  col_shopify_identifies_first_name: 'first_name'
-  col_shopify_identifies_last_name: 'last_name'
-  col_shopify_identifies_card_network: ''
-  col_shopify_identifies_payment_method: ''
-  col_shopify_identifies_birthday: ''
-  col_shopify_identifies_gender: ''
+  #table rudder identifies
+  tbl_rudder_identifies: "{{ source('rudder', 'identifies') }}"
+  col_rudder_identifies_user_id: 'user_id'
+  col_rudder_identifies_email: 'email'
+  col_rudder_identifies_country: 'address_country'
+  col_rudder_identifies_timestamp: "{{timestamp_call('timestamp')}}"
+  col_rudder_identifies_campaign_source: 'context_campaign_source'
+  col_rudder_identifies_device_type: 'context_device_type'
+  col_rudder_identifies_device_name: 'context_device_name'
+  col_rudder_identifies_device_manufacturer: 'context_device_manufacturer'
+  col_rudder_identifies_state: 'state'
+  col_rudder_identifies_currency: 'currency'
+  col_rudder_identifies_first_name: 'first_name'
+  col_rudder_identifies_last_name: 'last_name'
+  col_rudder_identifies_card_network: ''
+  col_rudder_identifies_payment_method: ''
+  col_rudder_identifies_birthday: ''
+  col_rudder_identifies_gender: ''
 
-  #table shopify tracks
-  tbl_shopify_tracks: "{{ source('shopify', 'tracks') }}"
-  col_shopify_tracks_user_id: 'user_id'
-  col_shopify_tracks_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_tracks_session_id: 'context_session_id'
+  #table rudder tracks
+  tbl_rudder_tracks: "{{ source('rudder', 'tracks') }}"
+  col_rudder_tracks_user_id: 'user_id'
+  col_rudder_tracks_timestamp: "{{timestamp_call('timestamp')}}"
+  col_rudder_tracks_session_id: 'context_session_id'
 
-  #table shopify pages
-  tbl_shopify_pages: "{{ source('shopify', 'pages') }}"
-  col_shopify_pages_user_id: 'user_id'
-  col_shopify_pages_timestamp: "{{timestamp_call('timestamp')}}" 
-  col_shopify_pages_session_id: 'context_session_id'
+  #table rudder pages
+  tbl_rudder_pages: "{{ source('rudder', 'pages') }}"
+  col_rudder_pages_user_id: 'user_id'
+  col_rudder_pages_timestamp: "{{timestamp_call('timestamp')}}" 
+  col_rudder_pages_session_id: 'context_session_id'
 
-
-  #table shopify order_created
-  tbl_shopify_order_created: "{{ source('shopify', 'order_created') }}"
-  col_shopify_order_created_user_id: 'user_id'
-  col_shopify_order_created_total_price: 'total_price_usd'
-  col_shopify_order_created_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_order_created_products: 'products'
-  col_shopify_order_created_payment_method: 'payment_details_credit_card_company'
-  col_shopify_orders_cancelled_order_number: 'order_number'
-  var_sku_element_in_product_json: 'sku'
-
-  #table shopify orders_cancelled
-  tbl_shopify_orders_cancelled: "{{ source('shopify', 'orders_cancelled') }}"
-  col_shopify_orders_cancelled_user_id: 'user_id'
-  col_shopify_orders_cancelled_total_price: 'total_price_usd'
-  col_shopify_orders_cancelled_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_orders_cancelled_order_number: 'order_number'
-  col_shopify_orders_cart_id: 'cart_token'
-
-  #table shopify cart_create
-  tbl_shopify_cart_create: "{{ source('shopify', 'cart_create') }}"
-  col_shopify_cart_create_user_id: 'token'
-  col_shopify_cart_create_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_cart_create_products: 'products'
-  var_product_elements: ['brand', 'discounted_price', 'gift_card', 'grams', 'id', 'key', 'line_price', 'original_line_price', 'original_price', 'price', 'product_id', 'properties', 'quantity', 'sku', 'taxable', 'title', 'total_discount', 'variant']
-
-  #table shopify cart_update 
-  tbl_shopify_cart_update: "{{ source('shopify', 'cart_update') }}"
-  col_shopify_cart_update_user_id: 'token'
-  col_shopify_cart_update_timestamp: "{{timestamp_call('timestamp')}}"
-  col_shopify_cart_update_products: 'products'
