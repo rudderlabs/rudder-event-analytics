@@ -24,24 +24,21 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 
 models:
-  dbt_rudder_features_rs:
-    source_tables:
+  dbt_rudderstack_metrics:
+    metrics:
       materialized: ephemeral
-    intermediate_tables:
-      materialized: ephemeral
-    pre_aggregate_tables:
+    dimensions:
       materialized: view
 
 
 vars:
-  rs_database: 'warehouse'    #This is the name of database where the RudderStack tables are all stored
-  rs_schema: 'rudderstack'     #This is the name of schema where the RudderStack tables are all stored
+  rs_database: 'rudder_autotrack_data'    #This is the name of database where the RudderStack tables are all stored
+  rs_schema: 'autotrack'     #This is the name of schema where the RudderStack tables are all stored
   start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. If no such filter is required, this can be left blank (empty string '')
   end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp (ex: '2022-01-01' would consider data only <= 2022-01-01)
   date_format: 'YYYY-MM-DD'             # This is the date format
   session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
   main_id: anonymous_id
-  id_stitcher_name: dummy
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
