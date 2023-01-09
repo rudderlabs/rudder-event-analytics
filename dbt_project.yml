@@ -25,20 +25,22 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   dbt_rudderstack_metrics:
-    metrics:
-      materialized: ephemeral
-    dimensions:
-      materialized: view
+    materialized: ephemeral
+
 
 
 vars:
   rs_database: 'rudder_autotrack_data'    #This is the name of database where the RudderStack tables are all stored
   rs_schema: 'autotrack'     #This is the name of schema where the RudderStack tables are all stored
-  start_date: '2015-01-01'              #This is the lower bound on date. Only events after this date would be considered. Typically used to ignore data during test setup days. If no such filter is required, this can be left blank (empty string '')
-  end_date: 'now'                       #This is the upper bound on date .Default is 'now'; It can be modified to some old date to create snapshot of features as of an older timestamp (ex: '2022-01-01' would consider data only <= 2022-01-01)
-  date_format: 'YYYY-MM-DD'             # This is the date format
+  lookback_hours: 48          # This is the duration for which the incremental runs recreate the data. Anything beyond this, the data doesn't change. You can do a full-refresh to force update though.
   session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
   main_id: anonymous_id
+  col_timestamp: "{{timestamp_call('timestamp')}}"
+  col_session_id: 'context_session_id'
+  col_referrer: 'context_page_referrer'
+  col_referring_domain: 'context_page_referring_domain'
+  col_utm_source: 'context_campaign_source'
+  col_utm_medium: 'context_campaign_medium'
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
@@ -46,21 +48,13 @@ vars:
   tbl_rudder_identifies: "{{ source('rudder', 'identifies') }}"
   col_rudder_identifies_anon_id: 'anonymous_id'
   col_rudder_identifies_user_id: 'user_id'
-  col_rudder_identifies_email: 'email'
   col_rudder_identifies_country: 'address_country'
   col_rudder_identifies_timestamp: "{{timestamp_call('timestamp')}}"
   col_rudder_identifies_campaign_source: 'context_campaign_source'
   col_rudder_identifies_device_type: 'context_device_type'
   col_rudder_identifies_device_name: 'context_device_name'
   col_rudder_identifies_device_manufacturer: 'context_device_manufacturer'
-  col_rudder_identifies_state: 'state'
-  col_rudder_identifies_currency: 'currency'
-  col_rudder_identifies_first_name: 'first_name'
-  col_rudder_identifies_last_name: 'last_name'
-  col_rudder_identifies_card_network: ''
-  col_rudder_identifies_payment_method: ''
-  col_rudder_identifies_birthday: ''
-  col_rudder_identifies_gender: ''
+
 
   #table rudder tracks
   tbl_rudder_tracks: "{{ source('rudder', 'tracks') }}"
