@@ -25,7 +25,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   dbt_rudderstack_metrics:
-    materialized: ephemeral
+    materialized: table
 
 
 
@@ -41,34 +41,19 @@ vars:
   col_referring_domain: 'context_page_referring_domain'
   col_utm_source: 'context_campaign_source'
   col_utm_medium: 'context_campaign_medium'
+  col_screen_height: 'context_screen_height'
+  col_screen_width: 'context_screen_width'
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
   #table rudder identifies
   tbl_rudder_identifies: "{{ source('rudder', 'identifies') }}"
-  col_rudder_identifies_anon_id: 'anonymous_id'
-  col_rudder_identifies_user_id: 'user_id'
-  col_rudder_identifies_country: 'address_country'
-  col_rudder_identifies_timestamp: "{{timestamp_call('timestamp')}}"
-  col_rudder_identifies_campaign_source: 'context_campaign_source'
-  col_rudder_identifies_device_type: 'context_device_type'
-  col_rudder_identifies_device_name: 'context_device_name'
-  col_rudder_identifies_device_manufacturer: 'context_device_manufacturer'
-
 
   #table rudder tracks
   tbl_rudder_tracks: "{{ source('rudder', 'tracks') }}"
-  col_rudder_tracks_anon_id: 'anonymous_id'
-  col_rudder_tracks_user_id: 'user_id'
-  col_rudder_tracks_timestamp: "{{timestamp_call('timestamp')}}"
-  col_rudder_tracks_session_id: 'context_session_id'
 
   #table rudder pages
   tbl_rudder_pages: "{{ source('rudder', 'pages') }}"
-  col_rudder_pages_anon_id: 'anonymous_id'
-  col_rudder_pages_user_id: 'user_id'
-  col_rudder_pages_timestamp: "{{timestamp_call('timestamp')}}" 
-  col_rudder_pages_session_id: 'context_session_id'
 
   ##table rudder screens
   #tbl_rudder_pages: "{{ source('rudder', 'screens') }}"

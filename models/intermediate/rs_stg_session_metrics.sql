@@ -11,6 +11,7 @@ with
                     utm_source,
                     utm_medium,
                     channel,
+                    device_type,
                     {{ var('col_session_id') }},
                     first_value({{ var('col_timestamp') }}) over (
                         partition by {{ var('main_id') }}, {{ var('col_session_id') }}
@@ -22,7 +23,7 @@ with
                     ) as session_end_time
                 from {{ ref('rs_stg_all_events') }}
             )
-        group by 1, 2, 3, 4, 5, 6, 7, 8, 9
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9,10
     )
 select
     {{ var('main_id') }},
@@ -31,8 +32,9 @@ select
     utm_source,
     utm_medium,
     channel,
+    device_type,
     count(distinct {{ var('col_session_id') }}) as n_sessions,
     sum(session_length) as total_session_length,
     sum(case when session_length = 0 then 1 else 0 end) as bounced_sessions
 from cte_session_info
-group by {{ var('main_id') }}, event_date, referrer, utm_source, utm_medium, channel
+group by {{ var('main_id') }}, event_date, referrer, utm_source, utm_medium, channel,device_type
