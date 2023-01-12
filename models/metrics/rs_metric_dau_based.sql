@@ -1,5 +1,6 @@
 
 select
+    anonymous_id,
     event_date,
     referrer,
     utm_source,
