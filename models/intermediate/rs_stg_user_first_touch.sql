@@ -22,7 +22,11 @@ from
             first_value(channel) over (
                 partition by {{ var('main_id') }}
                 order by {{ var('col_timestamp') }} asc
-            ) as channel
+            ) as channel,
+            first_value(source_medium) over (
+                partition by {{ var('main_id') }}
+                order by {{ var('col_timestamp') }} asc
+            ) as source_medium
         from {{ ref('rs_stg_all_events') }}
     )
-group by 1, 2, 3, 4, 5, 6
+group by 1, 2, 3, 4, 5, 6, 7

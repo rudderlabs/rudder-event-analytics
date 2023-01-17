@@ -43,6 +43,7 @@ vars:
   col_utm_medium: 'context_campaign_medium'
   col_screen_height: 'context_screen_height'
   col_screen_width: 'context_screen_width'
+  start_dt: '2022-09-15'
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
