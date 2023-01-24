@@ -42,3 +42,12 @@
     to_char({{column_name}})
 {% endif %} 
 {% endmacro %}
+
+
+{% macro to_date(timestamp_col) %}
+{% if target.type == 'snowflake' %}
+    to_date({{timestamp_col}})
+{% elif target.type == 'redshift' %}
+    trunc({{timestamp_col}})
+{% endif %}
+{% endmacro %}
