@@ -14,11 +14,11 @@ with
                     {{ var('col_session_id') }},
                     first_value({{ var('col_timestamp') }}) over (
                         partition by {{ var('main_id') }}, {{ var('col_session_id') }}
-                        order by {{ var('col_timestamp') }} asc
+                        order by {{ var('col_timestamp') }} asc rows between unbounded preceding and unbounded following
                     ) as session_start_time,
                     first_value({{ var('col_timestamp') }}) over (
                         partition by {{ var('main_id') }}, {{ var('col_session_id') }}
-                        order by {{ var('col_timestamp') }} desc
+                        order by {{ var('col_timestamp') }} desc rows between unbounded preceding and unbounded following
                     ) as session_end_time
                 from {{ ref('rs_stg_all_events') }} where {{ var('col_session_id') }} is not null
             )
