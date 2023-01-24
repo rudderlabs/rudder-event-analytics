@@ -32,9 +32,8 @@ models:
 vars:
   rs_database: 'rudder_autotrack_data'    #This is the name of database where the RudderStack tables are all stored
   rs_schema: 'autotrack'     #This is the name of schema where the RudderStack tables are all stored
-  lookback_hours: 48          # This is the duration for which the incremental runs recreate the data. Anything beyond this, the data doesn't change. You can do a full-refresh to force update though.
-  session_cutoff_in_sec: 1800           # A session is a continuous sequence of events, as long as the events are within this interval. If two consecutive events occur at an interval of greater than this, a new session is created.
   main_id: anonymous_id
+  start_dt: '2022-09-15'
   col_timestamp: "{{timestamp_call('timestamp')}}"
   col_session_id: 'context_session_id'
   col_referrer: 'context_page_referrer'
@@ -43,7 +42,7 @@ vars:
   col_utm_medium: 'context_campaign_medium'
   col_screen_height: 'context_screen_height'
   col_screen_width: 'context_screen_width'
-  start_dt: '2022-09-15'
+  
 
   # All below variables pertain to table names and column names. If the event tracking plan is followed perfectly, it ideally shouldn't need any modifications below.
   
@@ -58,8 +57,3 @@ vars:
 
   ##table rudder screens
   #tbl_rudder_pages: "{{ source('rudder', 'screens') }}"
-  #col_rudder_pages_anon_id: 'anonymous_id'
-  #col_rudder_pages_user_id: 'user_id'
-  #col_rudder_pages_timestamp: "{{timestamp_call('timestamp')}}" 
-  #col_rudder_pages_session_id: 'context_session_id'
-
