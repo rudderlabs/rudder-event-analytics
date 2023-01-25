@@ -30,10 +30,10 @@ models:
 
 
 vars:
-  rs_database: 'rudder_autotrack_data'    #This is the name of database where the RudderStack tables are all stored
-  rs_schema: 'autotrack'     #This is the name of schema where the RudderStack tables are all stored
+  rs_database: '<REPLACE WITH YOUR DB NAME>'    #This is the name of database where the RudderStack tables are all stored
+  rs_schema: '<REPLACE WITH YOUR SCHEMA NAME>'     #This is the name of schema where the RudderStack tables are all stored
   main_id: anonymous_id
-  start_dt: '2022-09-15'
+  start_dt: '2010-01-01'
   col_timestamp: "{{timestamp_call('timestamp')}}"
   col_session_id: 'context_session_id'
   col_referrer: 'context_page_referrer'
