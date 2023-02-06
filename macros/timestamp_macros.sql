@@ -45,6 +45,7 @@
 
 
 {% macro to_date(timestamp_col) %}
+{{timestamp_col}}
 {% if target.type == 'snowflake' %}
     to_date({{timestamp_col}})
 {% elif target.type == 'redshift' %}
