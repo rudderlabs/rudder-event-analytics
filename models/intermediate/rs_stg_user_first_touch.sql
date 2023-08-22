@@ -34,5 +34,5 @@ from
                 rows between unbounded preceding and unbounded following
             ) as source_medium
         from {{ ref('rs_stg_all_events') }}
-    )
+    ) a
 group by 1, 2, 3, 4, 5, 6, 7

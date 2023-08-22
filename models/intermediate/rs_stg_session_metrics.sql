@@ -33,7 +33,7 @@ with
                         order by {{ var('col_timestamp') }} desc rows between unbounded preceding and unbounded following
                     ) as session_end_time
                 from {{ ref('rs_stg_all_events') }} where {{ var('col_session_id') }} is not null
-            )
+            ) a 
         group by 1, 2, 3, 4, 5, 6, 7, 8, 9
     )
 select

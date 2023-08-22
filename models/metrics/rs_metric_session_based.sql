@@ -20,5 +20,5 @@ from
             sum(total_session_length) as total_session_length_in_sec
         from {{ ref("rs_stg_session_metrics") }}
         group by event_date, source_medium, channel, referrer, device_type
-    )
+    ) a
 order by event_date desc 
