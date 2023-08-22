@@ -7,10 +7,22 @@ with
                 select
                     {{ var('main_id') }},
                     {{ to_date(var('col_timestamp')) }} as event_date,
-                    referrer,
-                    source_medium,
-                    channel,
-                    device_type,
+                    first_value(referrer) over (
+                        partition by {{ var('main_id') }}, {{ var('col_session_id') }}
+                        order by {{ var('col_timestamp') }} asc rows between unbounded preceding and unbounded following
+                    ) as referrer,
+                    first_value(source_medium) over (
+                        partition by {{ var('main_id') }}, {{ var('col_session_id') }}
+                        order by {{ var('col_timestamp') }} asc rows between unbounded preceding and unbounded following
+                    ) as source_medium,
+                    first_value(channel) over (
+                        partition by {{ var('main_id') }}, {{ var('col_session_id') }}
+                        order by {{ var('col_timestamp') }} asc rows between unbounded preceding and unbounded following
+                    ) as channel,
+                    first_value(device_type) over (
+                        partition by {{ var('main_id') }}, {{ var('col_session_id') }}
+                        order by {{ var('col_timestamp') }} asc rows between unbounded preceding and unbounded following
+                    ) as device_type,
                     {{ var('col_session_id') }},
                     first_value({{ var('col_timestamp') }}) over (
                         partition by {{ var('main_id') }}, {{ var('col_session_id') }}
@@ -21,7 +33,7 @@ with
                         order by {{ var('col_timestamp') }} desc rows between unbounded preceding and unbounded following
                     ) as session_end_time
                 from {{ ref('rs_stg_all_events') }} where {{ var('col_session_id') }} is not null
-            )
+            ) a 
         group by 1, 2, 3, 4, 5, 6, 7, 8, 9
     )
 select
